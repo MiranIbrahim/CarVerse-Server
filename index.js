@@ -27,18 +27,13 @@ async function run() {
     // Send a ping to confirm a successful connection
 
     const ProductTable = client.db("CarverseDB").collection("Product");
-    const userCollection = client.db("CarverseDB").collection("User");
+    const CartTable = client.db("CarverseDB").collection("Cart");
+
+    // for Add  products
 
     app.get("/products", async (req, res) => {
       const cursor = ProductTable.find();
       const result = await cursor.toArray();
-      res.send(result);
-    });
-
-    app.get("/products/:id", async (req, res) => {
-      const id = req.params.id;
-      const query = { _id: new ObjectId(id) };
-      const result = await ProductTable.findOne(query);
       res.send(result);
     });
 
@@ -49,7 +44,15 @@ async function run() {
       res.send(result);
     });
 
-    app.put('/products/:id', async (req, res) => {
+    // for Update Products
+    app.get("/products/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await ProductTable.findOne(query);
+      res.send(result);
+    });
+
+    app.put("/products/:id", async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) };
       const options = { upsert: true };
@@ -67,6 +70,30 @@ async function run() {
         },
       };
       const result = await ProductTable.updateOne(filter, product, options);
+      res.send(result);
+    });
+
+    // for Cart Products
+
+    app.get("/cart", async (req, res) => {
+      const cursor = CartTable.find();
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+
+    app.post("/cart", async (req, res) => {
+      const cartItem = req.body;
+      console.log(cartItem);
+      const result = await CartTable.insertOne(cartItem);
+      res.send(result);
+    });
+
+    app.delete("/cart/:id", async (req, res) => {
+      const id = req.params.id;
+      console.log("delete this ", id);
+      const query = { _id: id };
+      console.log("present ", query);
+      const result = await CartTable.deleteOne(query);
       res.send(result);
     });
 
